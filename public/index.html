@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>ISIT420 Homework 1</title>
+
+  <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="stylesheets/index.css" >
+
+
+</head>
+
+<body>
+
+<div>
+  <p>StoreID: <div id="storeID"></div></p>
+</div>
+
+<div>
+  <p>SalesPersonID: <div id="salesPersonID"></div></p>
+</div>
+
+<div>
+  <p>CdID: <div id="cdID"></div></p>
+</div>
+
+<div>
+  <p>PricePaid: <div id="pricePaid"></div></p>
+</div>
+
+<div>
+  <p>Date: <div id="date"></div></p>
+</div>
+
+<div>
+<button id="buttonCreate">CREATE</button>
+<button id="buttonSubmit1">SUBMIT-ONE</button>
+<button id="buttonSubmit500">SUBMIT500</button>
+</div>
+
+<script>
+  const storeIDs = [98053, 98007, 98077, 98055, 98011, 98046];
+  const cdIDs = [123456, 123654, 321456, 321654, 654123, 654321, 543216, 354126, 621453, 623451];
+
+  function Order(storeId, salesPersonId, cdId, pricePaid, date) {
+    this.StoreID = storeId;
+    this.SalesPersonID = salesPersonId;
+    this.CdID = cdId;
+    this.PricePaid = pricePaid;
+    this.Date = date;
+  }
+
+  function createRandomOrder(createdDate) {
+    const storeIndex = Math.floor(Math.random() * 6);
+    const salesPersonId = 1 + Math.floor(Math.random() * 4) + storeIndex * 4;
+    const cdIndex = Math.floor(Math.random() * 10);
+    const pricePaid = 5 + Math.floor(Math.random() * 11);
+    if (createdDate !== undefined) {
+      return new Order(storeIDs[storeIndex], salesPersonId, cdIDs[cdIndex], pricePaid, createdDate)
+    }
+    return new Order(storeIDs[storeIndex], salesPersonId, cdIDs[cdIndex], pricePaid, Date())
+  }
+
+  function create() {
+    const order = createRandomOrder();
+    document.getElementById("storeID").innerHTML = "" + order.StoreID;
+    document.getElementById("salesPersonID").innerHTML = "" + order.SalesPersonID;
+    document.getElementById("cdID").innerHTML = "" + order.CdID;
+    document.getElementById("pricePaid").innerHTML = "" + order.PricePaid;
+    document.getElementById("date").innerHTML = order.Date;
+  }
+
+  function submit1() {
+    fetch("/PrintOrder", {
+      method: "POST",
+      body: JSON.stringify(createRandomOrder()),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    });
+  }
+
+  function submit500() {
+    const now = Date.now();
+    for (let i = 0; i < 500; i++) {
+      const randomMinutes = 5 + Math.floor(Math.random() * 26);
+      const order = createRandomOrder(new Date(now + randomMinutes * 60000));
+      fetch("/AddOrder", {
+        method: "POST",
+        body: JSON.stringify(order),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8"
+        }
+      });
+    }
+
+  }
+
+  document.getElementById("buttonCreate").addEventListener("click", create);
+  document.getElementById("buttonSubmit1").addEventListener("click", submit1);
+  document.getElementById("buttonSubmit500").addEventListener("click", submit500);
+</script>
+
+</body>
+
+</html>
